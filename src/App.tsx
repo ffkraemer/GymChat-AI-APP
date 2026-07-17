@@ -1,0 +1,28 @@
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './auth/AuthContext';
+import { ProtectedRoute } from './auth/ProtectedRoute';
+import { AppShell } from './components/AppShell';
+import { LoginPage } from './pages/LoginPage';
+import { FaqsPage } from './pages/FaqsPage';
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/faqs"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <FaqsPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/" element={<Navigate to="/faqs" replace />} />
+        <Route path="*" element={<Navigate to="/faqs" replace />} />
+      </Routes>
+    </AuthProvider>
+  );
+}

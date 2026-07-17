@@ -1,0 +1,46 @@
+.chat-bubble-frame {
+  background: var(--phone-bg);
+  background-image: radial-gradient(circle at 20% 10%, #14202580 0%, transparent 45%);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.chat-bubble {
+  position: relative;
+  max-width: 100%;
+  background: var(--bubble-bg);
+  color: var(--bubble-text);
+  border-radius: 8px 8px 2px 8px;
+  padding: 7px 9px 6px 10px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.chat-bubble__text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  padding-right: 46px;
+}
+
+.chat-bubble__meta {
+  position: absolute;
+  right: 9px;
+  bottom: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.68rem;
+  color: var(--bubble-meta);
+  white-space: nowrap;
+}
+
+.chat-bubble__check {
+  width: 14px;
+  height: 10px;
+  color: #53bdeb;
+}
