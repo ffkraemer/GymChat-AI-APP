@@ -4,6 +4,7 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 import { AppShell } from './components/AppShell';
 import { LoginPage } from './pages/LoginPage';
 import { FaqsPage } from './pages/FaqsPage';
+import { GymsPage } from './pages/GymsPage';
 
 export default function App() {
   return (
@@ -16,6 +17,16 @@ export default function App() {
             <ProtectedRoute>
               <AppShell>
                 <FaqsPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/gyms"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <GymsPage />
               </AppShell>
             </ProtectedRoute>
           }

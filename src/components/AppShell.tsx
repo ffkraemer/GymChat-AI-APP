@@ -1,9 +1,15 @@
 import type { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import './AppShell.css';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const isPlatformAdmin = user?.roles.includes('PlatformAdmin') ?? false;
+
+  const navLinkClass = (path: string) =>
+    `shell__nav-item${location.pathname === path ? ' shell__nav-item--active' : ''}`;
 
   return (
     <div className="shell">
@@ -17,9 +23,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         <nav className="shell__nav">
-          <a className="shell__nav-item shell__nav-item--active" href="/faqs">
+          <a className={navLinkClass('/faqs')} href="/faqs">
             FAQs
           </a>
+          {isPlatformAdmin && (
+            <a className={navLinkClass('/gyms')} href="/gyms">
+              Gyms
+            </a>
+          )}
         </nav>
 
         <div className="shell__user">
