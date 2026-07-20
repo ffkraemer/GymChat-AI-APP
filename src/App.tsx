@@ -5,6 +5,7 @@ import { AppShell } from './components/AppShell';
 import { LoginPage } from './pages/LoginPage';
 import { FaqsPage } from './pages/FaqsPage';
 import { GymsPage } from './pages/GymsPage';
+import { ClassTypesPage } from './pages/ClassTypesPage';
 
 export default function App() {
   return (
@@ -17,6 +18,16 @@ export default function App() {
             <ProtectedRoute>
               <AppShell>
                 <FaqsPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/class-types"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <ClassTypesPage />
               </AppShell>
             </ProtectedRoute>
           }

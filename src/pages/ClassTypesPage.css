@@ -1,0 +1,217 @@
+.class-types__header {
+  margin-bottom: 28px;
+  max-width: 640px;
+}
+
+.class-types__header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.class-types__header p {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.class-types__gym-select {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 16px;
+}
+
+.class-types__gym-select select {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 11px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  min-width: 240px;
+}
+
+.class-types__gym-select select:focus {
+  border-color: var(--color-accent);
+}
+
+.class-types__layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.class-types__form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 32px;
+}
+
+.class-types__form h2 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.class-types__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.class-types__field input {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.class-types__field input:focus {
+  border-color: var(--color-accent);
+}
+
+.class-types__form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.class-types__form-actions .class-types__submit {
+  flex: 1;
+}
+
+.class-types__submit {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.class-types__submit:hover {
+  background: var(--color-accent-hover);
+}
+
+.class-types__submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.class-types__cancel {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.class-types__cancel:hover {
+  border-color: var(--color-text-muted);
+}
+
+.class-types__error {
+  background: var(--color-danger-bg);
+  color: #f5b8c0;
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  font-size: 0.82rem;
+}
+
+.class-types__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.class-types__card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-card);
+}
+
+.class-types__card--inactive {
+  opacity: 0.55;
+}
+
+.class-types__card-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.class-types__badge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-weight: 400;
+}
+
+.class-types__card-actions {
+  display: flex;
+  gap: 14px;
+}
+
+.class-types__link-button {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.class-types__link-button:hover {
+  color: var(--color-text);
+}
+
+.class-types__link-button--danger:hover {
+  color: var(--color-danger);
+}
+
+.class-types__link-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.class-types__empty {
+  color: var(--color-text-faint);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 800px) {
+  .class-types__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .class-types__form {
+    position: static;
+  }
+}

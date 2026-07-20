@@ -1,14 +1,16 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5277';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5277";
 
-const ACCESS_TOKEN_KEY = 'gymchat_access_token';
-const REFRESH_TOKEN_KEY = 'gymchat_refresh_token';
+console.warn("import.meta.env.VITE_API_BASE_URL: ", import.meta.env.VITE_API_BASE_URL);
+
+const ACCESS_TOKEN_KEY = "gymchat_access_token";
+const REFRESH_TOKEN_KEY = "gymchat_refresh_token";
 
 export class ApiError extends Error {
   status: number;
 
   constructor(message: string, status: number) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.status = status;
   }
 }
@@ -41,8 +43,8 @@ async function tryRefreshToken(): Promise<boolean> {
   refreshInFlight ??= (async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
       });
 
@@ -62,7 +64,7 @@ async function tryRefreshToken(): Promise<boolean> {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: "GET" | "POST" | "PUT" | "DELETE";
   body?: unknown;
   skipAuth?: boolean;
 }
@@ -72,10 +74,10 @@ interface RequestOptions {
  * refresh on 401, and throws ApiError with the response status for callers to handle.
  */
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', body, skipAuth = false } = options;
+  const { method = "GET", body, skipAuth = false } = options;
 
   const doFetch = async (): Promise<Response> => {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (!skipAuth) {
       const token = getAccessToken();
       if (token) headers.Authorization = `Bearer ${token}`;
