@@ -95,6 +95,29 @@
   cursor: default;
 }
 
+.faqs__form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.faqs__form-actions .faqs__submit {
+  flex: 1;
+}
+
+.faqs__cancel {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.faqs__cancel:hover {
+  border-color: var(--color-text-muted);
+}
+
 .faqs__error {
   background: var(--color-danger-bg);
   color: #f5b8c0;
@@ -117,6 +140,10 @@
   box-shadow: var(--shadow-card);
 }
 
+.faqs__card--inactive {
+  opacity: 0.55;
+}
+
 .faqs__card-header {
   display: flex;
   align-items: center;
@@ -130,6 +157,12 @@
   font-weight: 600;
 }
 
+.faqs__card-badges {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 .faqs__badge {
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -139,6 +172,41 @@
   border-radius: 999px;
   padding: 3px 9px;
   white-space: nowrap;
+}
+
+.faqs__badge--inactive {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.faqs__card-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.faqs__link-button {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.faqs__link-button:hover {
+  color: var(--color-text);
+}
+
+.faqs__link-button--danger:hover {
+  color: var(--color-danger);
+}
+
+.faqs__link-button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .faqs__empty {
