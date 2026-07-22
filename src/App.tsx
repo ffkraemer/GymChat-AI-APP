@@ -7,6 +7,7 @@ import { FaqsPage } from './pages/FaqsPage';
 import { GymsPage } from './pages/GymsPage';
 import { ClassTypesPage } from './pages/ClassTypesPage';
 import { CompliancePage } from './pages/CompliancePage';
+import { TemplatesPage } from './pages/TemplatesPage';
 
 export default function App() {
   return (
@@ -39,6 +40,16 @@ export default function App() {
             <ProtectedRoute>
               <AppShell>
                 <CompliancePage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/templates"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <TemplatesPage />
               </AppShell>
             </ProtectedRoute>
           }
