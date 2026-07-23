@@ -8,6 +8,7 @@ import { GymsPage } from './pages/GymsPage';
 import { ClassTypesPage } from './pages/ClassTypesPage';
 import { CompliancePage } from './pages/CompliancePage';
 import { TemplatesPage } from './pages/TemplatesPage';
+import { FlowsPage } from './pages/FlowsPage';
 
 export default function App() {
   return (
@@ -50,6 +51,16 @@ export default function App() {
             <ProtectedRoute>
               <AppShell>
                 <TemplatesPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/flows"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <FlowsPage />
               </AppShell>
             </ProtectedRoute>
           }

@@ -1,0 +1,231 @@
+.flows__header {
+  margin-bottom: 24px;
+  max-width: 680px;
+}
+
+.flows__header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.flows__header p {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.flows__key-form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flows__layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.flows__form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 32px;
+}
+
+.flows__form h2 {
+  font-size: 1rem;
+}
+
+.flows__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.flows__field input,
+.flows__field textarea {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.flows__field textarea {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  resize: vertical;
+}
+
+.flows__field input:focus,
+.flows__field textarea:focus {
+  border-color: var(--color-accent);
+}
+
+.flows__submit,
+.flows__submit-small {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.flows__submit-small {
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.flows__submit:hover,
+.flows__submit-small:hover {
+  background: var(--color-accent-hover);
+}
+
+.flows__submit:disabled,
+.flows__submit-small:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.flows__refresh {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.flows__refresh:hover {
+  border-color: var(--color-accent);
+}
+
+.flows__refresh:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.flows__error {
+  background: var(--color-danger-bg);
+  color: #f5b8c0;
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  font-size: 0.82rem;
+}
+
+.flows__message {
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+}
+
+.flows__list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.flows__list-header h2 {
+  font-size: 1rem;
+}
+
+.flows__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flows__card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flows__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flows__card-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.flows__status {
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.flows__status--draft {
+  color: var(--color-text-muted);
+}
+
+.flows__status--published {
+  color: #4fce8a;
+  border-color: #2e7d4f;
+}
+
+.flows__status--deprecated {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.flows__trigger {
+  display: flex;
+  gap: 8px;
+}
+
+.flows__trigger input {
+  flex: 1;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--color-text);
+  font-size: 0.85rem;
+}
+
+.flows__empty {
+  color: var(--color-text-faint);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .flows__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .flows__form {
+    position: static;
+  }
+}
