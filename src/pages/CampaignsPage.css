@@ -1,0 +1,250 @@
+.campaigns__header {
+  margin-bottom: 24px;
+  max-width: 720px;
+}
+
+.campaigns__header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.campaigns__header p {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.campaigns__header code {
+  background: var(--color-surface-raised);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.campaigns__layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.campaigns__form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 32px;
+}
+
+.campaigns__form h2 {
+  font-size: 1rem;
+}
+
+.campaigns__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.campaigns__field input,
+.campaigns__field select,
+.campaigns__field textarea {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.campaigns__field textarea {
+  resize: vertical;
+}
+
+.campaigns__field input:focus,
+.campaigns__field select:focus,
+.campaigns__field textarea:focus {
+  border-color: var(--color-accent);
+}
+
+.campaigns__submit,
+.campaigns__submit-small {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.campaigns__submit-small {
+  padding: 8px 14px;
+  font-size: 0.82rem;
+}
+
+.campaigns__submit:hover,
+.campaigns__submit-small:hover {
+  background: var(--color-accent-hover);
+}
+
+.campaigns__submit:disabled,
+.campaigns__submit-small:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.campaigns__error {
+  background: var(--color-danger-bg);
+  color: #f5b8c0;
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  font-size: 0.82rem;
+}
+
+.campaigns__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.campaigns__card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.campaigns__card--inactive {
+  opacity: 0.7;
+}
+
+.campaigns__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.campaigns__card-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-right: 8px;
+}
+
+.campaigns__card-type {
+  font-size: 0.72rem;
+  color: var(--color-text-faint);
+}
+
+.campaigns__card-badges {
+  display: flex;
+  gap: 6px;
+}
+
+.campaigns__badge {
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.campaigns__badge--warning {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.campaigns__card-meta {
+  font-size: 0.78rem;
+  color: var(--color-text-faint);
+  margin-bottom: 8px;
+}
+
+.campaigns__card-body {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+
+.campaigns__card-actions {
+  display: flex;
+  gap: 14px;
+}
+
+.campaigns__link-button {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.campaigns__link-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.campaigns__trigger-panel {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.campaigns__trigger-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.campaigns__member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.campaigns__member-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.campaigns__trigger-message {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--color-text-faint);
+}
+
+.campaigns__empty {
+  color: var(--color-text-faint);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .campaigns__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .campaigns__form {
+    position: static;
+  }
+}

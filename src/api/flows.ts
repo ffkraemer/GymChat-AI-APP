@@ -5,6 +5,7 @@ export interface Flow {
   name: string;
   metaFlowId: string | null;
   status: string;
+  screenCount: number;
 }
 
 export function listFlows(gymId: string): Promise<Flow[]> {
@@ -46,4 +47,60 @@ export interface TriggerFlowInput {
 
 export function triggerFlow(id: string, input: TriggerFlowInput): Promise<{ whatsAppMessageId: string }> {
   return apiRequest<{ whatsAppMessageId: string }>(`/api/flows/${id}/trigger`, { method: 'POST', body: input });
+}
+
+// ---- Flow Designer (screens/components) ----
+
+export interface ComponentResponse {
+  type: string;
+  label: string;
+  variableName: string | null;
+  required: boolean;
+  optionsSource: string | null;
+  staticOptionsJson: string | null;
+  footerAction: string | null;
+  footerNextScreenId: string | null;
+  footerButtonLabel: string | null;
+}
+
+export interface ScreenResponse {
+  screenId: string;
+  title: string;
+  components: ComponentResponse[];
+}
+
+export function getFlowScreens(flowId: string): Promise<ScreenResponse[]> {
+  return apiRequest<ScreenResponse[]>(`/api/flows/${flowId}/screens`);
+}
+
+export interface ComponentDefinitionInput {
+  type: number;
+  label: string;
+  variableName?: string | null;
+  required?: boolean;
+  optionsSource?: number | null;
+  staticOptionsJson?: string | null;
+  footerAction?: number | null;
+  footerNextScreenId?: string | null;
+  footerButtonLabel?: string | null;
+}
+
+export interface ScreenDefinitionInput {
+  screenId: string;
+  title: string;
+  components: ComponentDefinitionInput[];
+}
+
+export function saveFlowScreens(flowId: string, screens: ScreenDefinitionInput[]): Promise<{ validationErrors: { error: string | null; message: string | null }[] }> {
+  return apiRequest(`/api/flows/${flowId}/screens`, { method: 'POST', body: { screens } });
+}
+
+// ---- Raw JSON editing (alternative to the structured Designer above) ----
+
+export function getFlowJson(flowId: string): Promise<{ flowJson: string }> {
+  return apiRequest(`/api/flows/${flowId}/json`);
+}
+
+export function updateFlowJson(flowId: string, flowJson: string): Promise<{ validationErrors: { error: string | null; message: string | null }[] }> {
+  return apiRequest(`/api/flows/${flowId}/json`, { method: 'PUT', body: { flowJson } });
 }

@@ -10,6 +10,7 @@ import { CompliancePage } from './pages/CompliancePage';
 import { TemplatesPage } from './pages/TemplatesPage';
 import { FlowsPage } from './pages/FlowsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { CampaignsPage } from './pages/CampaignsPage';
 
 export default function App() {
   return (
@@ -72,6 +73,16 @@ export default function App() {
             <ProtectedRoute>
               <AppShell>
                 <SettingsPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/campaigns"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <CampaignsPage />
               </AppShell>
             </ProtectedRoute>
           }

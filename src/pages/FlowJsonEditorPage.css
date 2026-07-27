@@ -1,0 +1,246 @@
+.jeditor {
+  max-width: 1200px;
+}
+
+.jeditor__header {
+  margin-bottom: 20px;
+  max-width: 680px;
+}
+
+.jeditor__header h1 {
+  font-size: 1.4rem;
+  margin-bottom: 6px;
+}
+
+.jeditor__header p {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.jeditor__layout {
+  display: grid;
+  grid-template-columns: 200px 1fr 280px;
+  gap: 16px;
+  align-items: start;
+}
+
+.jeditor__flow-list,
+.jeditor__json-panel,
+.jeditor__preview-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.jeditor__flow-list {
+  position: sticky;
+  top: 32px;
+}
+
+.jeditor__flow-list h2,
+.jeditor__preview-panel h2 {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.jeditor__flow-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+
+.jeditor__flow-item:hover {
+  background: var(--color-surface-raised);
+}
+
+.jeditor__flow-item--active {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.jeditor__json-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.jeditor__upload-button,
+.jeditor__save-button {
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.jeditor__upload-button {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.jeditor__upload-button:hover {
+  border-color: var(--color-accent);
+}
+
+.jeditor__save-button {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border: none;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.jeditor__save-button:hover {
+  background: var(--color-accent-hover);
+}
+
+.jeditor__save-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.jeditor__message {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.jeditor__validation-errors {
+  background: var(--color-danger-bg);
+  color: #f5c6cc;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  margin-bottom: 10px;
+}
+
+.jeditor__textarea {
+  width: 100%;
+  min-height: 560px;
+  background: #0d1117;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  color: #d1d7db;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.jeditor__preview-panel {
+  position: sticky;
+  top: 32px;
+}
+
+.jeditor__screen-select {
+  width: 100%;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 7px 9px;
+  color: var(--color-text);
+  font-size: 0.82rem;
+  margin-bottom: 10px;
+}
+
+.jeditor__phone {
+  background: #0b141a;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 16px 14px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jpreview__heading {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.jpreview__body {
+  color: #d1d7db;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.jpreview__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.jpreview__field span {
+  color: #8696a0;
+  font-size: 0.7rem;
+}
+
+.jpreview__field input {
+  background: #1f2c34;
+  border: 1px solid #2a3942;
+  border-radius: 6px;
+  padding: 7px 9px;
+  color: #d1d7db;
+  font-size: 0.78rem;
+}
+
+.jpreview__dropdown {
+  background: #1f2c34;
+  border: 1px solid #2a3942;
+  border-radius: 6px;
+  padding: 7px 9px;
+  color: #8696a0;
+  font-size: 0.78rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.jpreview__option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d1d7db;
+  font-size: 0.78rem;
+}
+
+.jpreview__footer-button {
+  width: 100%;
+  background: #00a884;
+  color: #0b141a;
+  border: none;
+  border-radius: 8px;
+  padding: 11px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: default;
+  margin-top: auto;
+}
+
+.jeditor__empty {
+  color: var(--color-text-faint);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 1000px) {
+  .jeditor__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .jeditor__flow-list,
+  .jeditor__preview-panel {
+    position: static;
+  }
+}

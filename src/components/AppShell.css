@@ -130,3 +130,9 @@
     padding: 20px;
   }
 }
+
+.nav__sublink {
+  padding-left: 24px !important;
+  font-size: 0.82rem !important;
+  color: var(--color-text-faint) !important;
+}
