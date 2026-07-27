@@ -1,3 +1,96 @@
+.templates__card-mismatch {
+  background: var(--color-danger-bg);
+  color: #f5c6cc;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+
+.templates__card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.templates__delete-small {
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.templates__delete-small:hover {
+  background: var(--color-danger-bg);
+}
+
+.templates__delete-small:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.templates__campaigns {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+
+.templates__campaigns h2 {
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.templates__campaigns-sub {
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+  margin-bottom: 14px;
+}
+
+.templates__campaigns-message {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+}
+
+.templates__campaigns-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.templates__campaigns-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.templates__campaigns-row:last-child {
+  border-bottom: none;
+}
+
+.templates__campaigns-name {
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.templates__campaigns-row select {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  min-width: 220px;
+}
+
 .templates__header {
   margin-bottom: 24px;
   max-width: 680px;

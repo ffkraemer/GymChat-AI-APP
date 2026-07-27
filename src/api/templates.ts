@@ -5,6 +5,8 @@ export interface Template {
   name: string;
   language: string;
   category: string;
+  actualCategory: string | null;
+  categoryMismatch: boolean;
   bodyText: string;
   status: string;
   metaTemplateId: string | null;
@@ -29,6 +31,10 @@ export function createTemplateDraft(input: CreateTemplateDraftInput): Promise<Te
 
 export function submitTemplate(id: string): Promise<Template> {
   return apiRequest<Template>(`/api/templates/${id}/submit`, { method: 'POST' });
+}
+
+export function deleteTemplate(id: string): Promise<void> {
+  return apiRequest<void>(`/api/templates/${id}`, { method: 'DELETE' });
 }
 
 export function refreshTemplateStatuses(gymId: string): Promise<Template[]> {

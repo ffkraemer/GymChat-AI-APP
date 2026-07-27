@@ -1,8 +1,15 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../auth/useAuth';
-import { createTemplateDraft, listTemplates, refreshTemplateStatuses, submitTemplate, type Template } from '../api/templates';
-import { getGymById, resubscribeWebhook, setWhatsAppBusinessAccount } from '../api/gyms';
+import {
+  createTemplateDraft,
+  deleteTemplate,
+  listTemplates,
+  refreshTemplateStatuses,
+  submitTemplate,
+  type Template,
+} from '../api/templates';
 import { ApiError } from '../api/client';
+import { linkWhatsAppTemplate, listCampaigns, type Campaign } from '../api/campaigns';
 import './TemplatesPage.css';
 
 const CATEGORY_OPTIONS = [
@@ -49,13 +56,13 @@ export function TemplatesPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const [wabaId, setWabaId] = useState('');
-  const [currentWabaId, setCurrentWabaId] = useState<string | null>(null);
-  const [isSavingWaba, setIsSavingWaba] = useState(false);
-  const [wabaMessage, setWabaMessage] = useState<string | null>(null);
-
   const [submittingId, setSubmittingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [linkingId, setLinkingId] = useState<string | null>(null);
+  const [linkMessage, setLinkMessage] = useState<string | null>(null);
 
   function load() {
     if (!user) return;
@@ -65,53 +72,26 @@ export function TemplatesPage() {
       .catch(() => setLoadError('Não foi possível carregar os templates.'))
       .finally(() => setIsLoading(false));
 
-    // So the form shows "já configurado: ..." instead of always looking empty/unset,
-    // even when a WABA id was already saved in a previous visit.
-    getGymById(user.gymId)
-      .then((gym) => {
-        setCurrentWabaId(gym.whatsAppBusinessAccountId);
-        if (gym.whatsAppBusinessAccountId) setWabaId(gym.whatsAppBusinessAccountId);
-      })
+    listCampaigns(user.gymId)
+      .then(setCampaigns)
       .catch(() => {
-        // Non-fatal - the form just starts empty, as before.
+        // Non-fatal - the linking section just stays empty.
       });
   }
 
   useEffect(load, [user]);
 
-  async function handleSaveWaba(event: FormEvent) {
-    event.preventDefault();
-    if (!user) return;
-    setWabaMessage(null);
-    setIsSavingWaba(true);
-
+  async function handleLinkTemplate(campaignId: string, templateId: string) {
+    setLinkMessage(null);
+    setLinkingId(campaignId);
     try {
-      const result = await setWhatsAppBusinessAccount(user.gymId, wabaId);
-      setCurrentWabaId(result.gym.whatsAppBusinessAccountId);
-      setWabaMessage(
-        result.webhookSubscriptionSucceeded
-          ? 'Guardado - a App foi subscrita automaticamente para receber mensagens desta WABA.'
-          : 'Guardado, mas não foi possível subscrever a App automaticamente. Tenta "Resubscrever" ou faz isso manualmente via Graph API Explorer.',
-      );
+      const updated = await linkWhatsAppTemplate(campaignId, templateId || null);
+      setCampaigns((current) => current.map((c) => (c.id === campaignId ? updated : c)));
+      setLinkMessage(templateId ? 'Campanha ligada ao template.' : 'Campanha desligada do template - volta a usar texto livre.');
     } catch (err) {
-      setWabaMessage(err instanceof ApiError ? err.message : 'Não foi possível guardar o WABA ID.');
+      setLinkMessage(err instanceof ApiError ? err.message : 'Não foi possível ligar a campanha ao template.');
     } finally {
-      setIsSavingWaba(false);
-    }
-  }
-
-  async function handleResubscribe() {
-    if (!user) return;
-    setWabaMessage(null);
-    setIsSavingWaba(true);
-
-    try {
-      const result = await resubscribeWebhook(user.gymId);
-      setWabaMessage(result.success ? 'Subscrição confirmada com sucesso.' : 'Ainda não foi possível subscrever - confirma o WABA ID e o token de acesso.');
-    } catch (err) {
-      setWabaMessage(err instanceof ApiError ? err.message : 'Não foi possível tentar a subscrição.');
-    } finally {
-      setIsSavingWaba(false);
+      setLinkingId(null);
     }
   }
 
@@ -144,6 +124,18 @@ export function TemplatesPage() {
     }
   }
 
+  async function handleDelete(templateId: string) {
+    setDeletingId(templateId);
+    try {
+      await deleteTemplate(templateId);
+      setTemplates((current) => current.filter((t) => t.id !== templateId));
+    } catch (err) {
+      setSaveError(err instanceof ApiError ? err.message : 'Não foi possível eliminar o rascunho.');
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   async function handleRefresh() {
     if (!user) return;
     setIsRefreshing(true);
@@ -164,32 +156,42 @@ export function TemplatesPage() {
         <p>
           Cria e acompanha templates de mensagem do WhatsApp diretamente aqui - sem precisares
           de entrar no Meta Business Manager. Usa <code>{'{FirstName}'}</code>,{' '}
-          <code>{'{GymName}'}</code> etc. no corpo da mensagem.
+          <code>{'{GymName}'}</code> etc. no corpo da mensagem. A WABA e a chave de encriptação
+          configuram-se uma vez em <strong>Definições</strong>.
         </p>
       </header>
 
-      <form className="templates__waba-form" onSubmit={handleSaveWaba}>
-        <label className="templates__field templates__field--inline">
-          <span>
-            WhatsApp Business Account ID (necessário antes de submeteres templates)
-            {currentWabaId && <strong className="templates__waba-current"> · já configurado: {currentWabaId}</strong>}
-          </span>
-          <div className="templates__waba-row">
-            <input value={wabaId} onChange={(e) => setWabaId(e.target.value)} placeholder="Ex: 1022037357252228" />
-            <button type="submit" className="templates__submit-small" disabled={isSavingWaba || !wabaId}>
-              {isSavingWaba ? 'A guardar…' : currentWabaId ? 'Atualizar' : 'Guardar'}
-            </button>
+      {campaigns.length > 0 && (
+        <section className="templates__campaigns">
+          <h2>Ligar campanhas a templates aprovados</h2>
+          <p className="templates__campaigns-sub">
+            Enquanto uma campanha não estiver ligada a um template <strong>Aprovado</strong>, continua a enviar texto
+            livre (o aviso no Dashboard de Conformidade reflete isto).
+          </p>
+          {linkMessage && <div className="templates__campaigns-message">{linkMessage}</div>}
+          <div className="templates__campaigns-list">
+            {campaigns.map((campaign) => (
+              <div key={campaign.id} className="templates__campaigns-row">
+                <span className="templates__campaigns-name">{campaign.name}</span>
+                <select
+                  value={campaign.whatsAppMessageTemplateId ?? ''}
+                  onChange={(e) => handleLinkTemplate(campaign.id, e.target.value)}
+                  disabled={linkingId === campaign.id}
+                >
+                  <option value="">Sem template (texto livre)</option>
+                  {templates
+                    .filter((t) => t.status === 'Approved')
+                    .map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            ))}
           </div>
-        </label>
-        {wabaMessage && (
-          <div className="templates__waba-message">
-            {wabaMessage}{' '}
-            <button type="button" className="templates__link-button" onClick={handleResubscribe} disabled={isSavingWaba}>
-              Resubscrever
-            </button>
-          </div>
-        )}
-      </form>
+        </section>
+      )}
 
       <div className="templates__layout">
         <form className="templates__form" onSubmit={handleCreateDraft}>
@@ -264,6 +266,11 @@ export function TemplatesPage() {
               <div className="templates__card-meta">
                 {template.language} · {template.category}
               </div>
+              {template.categoryMismatch && (
+                <div className="templates__card-mismatch">
+                  A Meta recategorizou este template como <strong>{template.actualCategory}</strong> (submetido como {template.category}).
+                </div>
+              )}
               <p className="templates__card-body">{template.bodyText}</p>
               {template.variableNames.length > 0 && (
                 <div className="templates__card-variables">Variáveis: {template.variableNames.join(', ')}</div>
@@ -271,14 +278,24 @@ export function TemplatesPage() {
               {template.rejectionReason && <div className="templates__card-rejection">Motivo da rejeição: {template.rejectionReason}</div>}
 
               {template.status === 'Draft' && (
-                <button
-                  type="button"
-                  className="templates__submit-small"
-                  onClick={() => handleSubmit(template.id)}
-                  disabled={submittingId === template.id}
-                >
-                  {submittingId === template.id ? 'A submeter…' : 'Submeter para aprovação'}
-                </button>
+                <div className="templates__card-actions">
+                  <button
+                    type="button"
+                    className="templates__submit-small"
+                    onClick={() => handleSubmit(template.id)}
+                    disabled={submittingId === template.id}
+                  >
+                    {submittingId === template.id ? 'A submeter…' : 'Submeter para aprovação'}
+                  </button>
+                  <button
+                    type="button"
+                    className="templates__delete-small"
+                    onClick={() => handleDelete(template.id)}
+                    disabled={deletingId === template.id}
+                  >
+                    {deletingId === template.id ? 'A eliminar…' : 'Eliminar'}
+                  </button>
+                </div>
               )}
             </article>
           ))}

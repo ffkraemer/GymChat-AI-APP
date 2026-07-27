@@ -1,3 +1,28 @@
+.flows__card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.flows__delete-small {
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.flows__delete-small:hover {
+  background: var(--color-danger-bg);
+}
+
+.flows__delete-small:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .flows__header {
   margin-bottom: 24px;
   max-width: 680px;

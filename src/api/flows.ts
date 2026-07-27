@@ -19,6 +19,14 @@ export function publishFlow(id: string): Promise<Flow> {
   return apiRequest<Flow>(`/api/flows/${id}/publish`, { method: 'POST' });
 }
 
+export function deleteFlow(id: string): Promise<void> {
+  return apiRequest<void>(`/api/flows/${id}`, { method: 'DELETE' });
+}
+
+export function setFlowEndpoint(id: string, endpointUri: string): Promise<{ success: boolean }> {
+  return apiRequest<{ success: boolean }>(`/api/flows/${id}/endpoint`, { method: 'POST', body: { endpointUri } });
+}
+
 export function refreshFlowStatuses(gymId: string): Promise<Flow[]> {
   return apiRequest<Flow[]>(`/api/flows/${gymId}/refresh-statuses`, { method: 'POST' });
 }

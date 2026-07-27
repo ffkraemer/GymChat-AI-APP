@@ -38,6 +38,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <a className={navLinkClass('/flows')} href="/flows">
             Flows
           </a>
+          <a className={navLinkClass('/settings')} href="/settings">
+            Definições
+          </a>
           {isPlatformAdmin && (
             <a className={navLinkClass('/gyms')} href="/gyms">
               Gyms

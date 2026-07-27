@@ -2,10 +2,11 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../auth/useAuth';
 import {
   createFlow,
+  deleteFlow,
   listFlows,
   publishFlow,
   refreshFlowStatuses,
-  registerFlowEncryptionKey,
+  setFlowEndpoint,
   triggerFlow,
   type Flow,
 } from '../api/flows';
@@ -35,16 +36,17 @@ export function FlowsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [publicKeyPem, setPublicKeyPem] = useState('');
-  const [isSavingKey, setIsSavingKey] = useState(false);
-  const [keyMessage, setKeyMessage] = useState<string | null>(null);
-
   const [flowName, setFlowName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
   const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const [endpointUrl, setEndpointUrl] = useState('');
+  const [settingEndpointId, setSettingEndpointId] = useState<string | null>(null);
+  const [endpointMessage, setEndpointMessage] = useState<string | null>(null);
 
   const [triggerRecipient, setTriggerRecipient] = useState('');
   const [triggeringId, setTriggeringId] = useState<string | null>(null);
@@ -60,22 +62,6 @@ export function FlowsPage() {
   }
 
   useEffect(load, [user]);
-
-  async function handleRegisterKey(event: FormEvent) {
-    event.preventDefault();
-    if (!user) return;
-    setKeyMessage(null);
-    setIsSavingKey(true);
-
-    try {
-      const result = await registerFlowEncryptionKey(user.gymId, publicKeyPem);
-      setKeyMessage(result.success ? 'Chave pública registada com sucesso na Meta.' : 'A Meta rejeitou o registo da chave - confirma o formato PEM.');
-    } catch (err) {
-      setKeyMessage(err instanceof ApiError ? err.message : 'Não foi possível registar a chave.');
-    } finally {
-      setIsSavingKey(false);
-    }
-  }
 
   async function handleCreateFlow(event: FormEvent) {
     event.preventDefault();
@@ -102,6 +88,31 @@ export function FlowsPage() {
       setCreateError(err instanceof ApiError ? err.message : 'Não foi possível publicar o Flow.');
     } finally {
       setPublishingId(null);
+    }
+  }
+
+  async function handleDelete(flowId: string) {
+    setDeletingId(flowId);
+    try {
+      await deleteFlow(flowId);
+      setFlows((current) => current.filter((f) => f.id !== flowId));
+    } catch (err) {
+      setCreateError(err instanceof ApiError ? err.message : 'Não foi possível eliminar o Flow.');
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleSetEndpoint(flowId: string) {
+    setEndpointMessage(null);
+    setSettingEndpointId(flowId);
+    try {
+      const result = await setFlowEndpoint(flowId, endpointUrl);
+      setEndpointMessage(result.success ? 'Endpoint definido com sucesso.' : 'A Meta não aceitou este endpoint - confirma se é acessível publicamente (ngrok ativo).');
+    } catch (err) {
+      setEndpointMessage(err instanceof ApiError ? err.message : 'Não foi possível definir o endpoint.');
+    } finally {
+      setSettingEndpointId(null);
     }
   }
 
@@ -141,25 +152,10 @@ export function FlowsPage() {
         <h1>Flows</h1>
         <p>
           Formulários nativos do WhatsApp para as preferências de notificações - a alternativa
-          mais rica ao menu de botões/listas, com seleção múltipla real.
+          mais rica ao menu de botões/listas, com seleção múltipla real. A chave de encriptação
+          configura-se uma vez em <strong>Definições</strong>.
         </p>
       </header>
-
-      <form className="flows__key-form" onSubmit={handleRegisterKey}>
-        <label className="flows__field">
-          <span>Chave pública RSA (PEM) — passo único, antes de criares o primeiro Flow</span>
-          <textarea
-            value={publicKeyPem}
-            onChange={(e) => setPublicKeyPem(e.target.value)}
-            placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----"
-            rows={4}
-          />
-        </label>
-        <button type="submit" className="flows__submit-small" disabled={isSavingKey || !publicKeyPem}>
-          {isSavingKey ? 'A registar…' : 'Registar chave'}
-        </button>
-        {keyMessage && <div className="flows__message">{keyMessage}</div>}
-      </form>
 
       <div className="flows__layout">
         <form className="flows__form" onSubmit={handleCreateFlow}>
@@ -194,9 +190,37 @@ export function FlowsPage() {
               </div>
 
               {flow.status === 'Draft' && (
-                <button type="button" className="flows__submit-small" onClick={() => handlePublish(flow.id)} disabled={publishingId === flow.id}>
-                  {publishingId === flow.id ? 'A publicar…' : 'Publicar'}
-                </button>
+                <>
+                  <div className="flows__trigger">
+                    <input
+                      value={endpointUrl}
+                      onChange={(e) => setEndpointUrl(e.target.value)}
+                      placeholder="URL pública do endpoint (ex: https://xxxx.ngrok-free.dev/webhooks/whatsapp/flow-data-exchange)"
+                    />
+                    <button
+                      type="button"
+                      className="flows__submit-small"
+                      onClick={() => handleSetEndpoint(flow.id)}
+                      disabled={settingEndpointId === flow.id || !endpointUrl}
+                    >
+                      {settingEndpointId === flow.id ? 'A definir…' : 'Definir endpoint'}
+                    </button>
+                  </div>
+                  {endpointMessage && <div className="flows__message">{endpointMessage}</div>}
+                  <div className="flows__card-actions">
+                    <button type="button" className="flows__submit-small" onClick={() => handlePublish(flow.id)} disabled={publishingId === flow.id}>
+                      {publishingId === flow.id ? 'A publicar…' : 'Publicar'}
+                    </button>
+                    <button
+                      type="button"
+                      className="flows__delete-small"
+                      onClick={() => handleDelete(flow.id)}
+                      disabled={deletingId === flow.id}
+                    >
+                      {deletingId === flow.id ? 'A eliminar…' : 'Eliminar'}
+                    </button>
+                  </div>
+                </>
               )}
 
               {flow.status === 'Published' && (
