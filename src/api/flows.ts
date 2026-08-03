@@ -1,4 +1,4 @@
-import { apiRequest } from './client';
+import { apiRequest } from "./client";
 
 export interface Flow {
   id: string;
@@ -6,6 +6,8 @@ export interface Flow {
   metaFlowId: string | null;
   status: string;
   screenCount: number;
+  isDynamic: boolean;
+  endpointUri: string | null;
 }
 
 export function listFlows(gymId: string): Promise<Flow[]> {
@@ -13,28 +15,28 @@ export function listFlows(gymId: string): Promise<Flow[]> {
 }
 
 export function createFlow(name: string): Promise<Flow> {
-  return apiRequest<Flow>('/api/flows', { method: 'POST', body: { name } });
+  return apiRequest<Flow>("/api/flows", { method: "POST", body: { name } });
 }
 
 export function publishFlow(id: string): Promise<Flow> {
-  return apiRequest<Flow>(`/api/flows/${id}/publish`, { method: 'POST' });
+  return apiRequest<Flow>(`/api/flows/${id}/publish`, { method: "POST" });
 }
 
 export function deleteFlow(id: string): Promise<void> {
-  return apiRequest<void>(`/api/flows/${id}`, { method: 'DELETE' });
+  return apiRequest<void>(`/api/flows/${id}`, { method: "DELETE" });
 }
 
 export function setFlowEndpoint(id: string, endpointUri: string): Promise<{ success: boolean }> {
-  return apiRequest<{ success: boolean }>(`/api/flows/${id}/endpoint`, { method: 'POST', body: { endpointUri } });
+  return apiRequest<{ success: boolean }>(`/api/flows/${id}/endpoint`, { method: "POST", body: { endpointUri } });
 }
 
 export function refreshFlowStatuses(gymId: string): Promise<Flow[]> {
-  return apiRequest<Flow[]>(`/api/flows/${gymId}/refresh-statuses`, { method: 'POST' });
+  return apiRequest<Flow[]>(`/api/flows/${gymId}/refresh-statuses`, { method: "POST" });
 }
 
 export function registerFlowEncryptionKey(gymId: string, publicKeyPem: string): Promise<{ success: boolean }> {
   return apiRequest<{ success: boolean }>(`/api/flows/${gymId}/encryption-key`, {
-    method: 'POST',
+    method: "POST",
     body: { publicKeyPem },
   });
 }
@@ -46,7 +48,7 @@ export interface TriggerFlowInput {
 }
 
 export function triggerFlow(id: string, input: TriggerFlowInput): Promise<{ whatsAppMessageId: string }> {
-  return apiRequest<{ whatsAppMessageId: string }>(`/api/flows/${id}/trigger`, { method: 'POST', body: input });
+  return apiRequest<{ whatsAppMessageId: string }>(`/api/flows/${id}/trigger`, { method: "POST", body: input });
 }
 
 // ---- Flow Designer (screens/components) ----
@@ -91,8 +93,12 @@ export interface ScreenDefinitionInput {
   components: ComponentDefinitionInput[];
 }
 
-export function saveFlowScreens(flowId: string, screens: ScreenDefinitionInput[]): Promise<{ validationErrors: { error: string | null; message: string | null }[] }> {
-  return apiRequest(`/api/flows/${flowId}/screens`, { method: 'POST', body: { screens } });
+export function saveFlowScreens(
+  flowId: string,
+  screens: ScreenDefinitionInput[],
+  isDynamic: boolean,
+): Promise<{ validationErrors: { error: string | null; message: string | null }[] }> {
+  return apiRequest(`/api/flows/${flowId}/screens`, { method: "POST", body: { screens, isDynamic } });
 }
 
 // ---- Raw JSON editing (alternative to the structured Designer above) ----
@@ -101,6 +107,9 @@ export function getFlowJson(flowId: string): Promise<{ flowJson: string }> {
   return apiRequest(`/api/flows/${flowId}/json`);
 }
 
-export function updateFlowJson(flowId: string, flowJson: string): Promise<{ validationErrors: { error: string | null; message: string | null }[] }> {
-  return apiRequest(`/api/flows/${flowId}/json`, { method: 'PUT', body: { flowJson } });
+export function updateFlowJson(
+  flowId: string,
+  flowJson: string,
+): Promise<{ validationErrors: { error: string | null; message: string | null }[] }> {
+  return apiRequest(`/api/flows/${flowId}/json`, { method: "PUT", body: { flowJson } });
 }

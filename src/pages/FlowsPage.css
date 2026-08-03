@@ -392,6 +392,15 @@
   margin-bottom: 8px;
 }
 
+.flows__message--top {
+  background: rgba(79, 206, 138, 0.12);
+  border: 1px solid #2e7d4f;
+  color: #4fce8a;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+}
+
 .flows__delete-small {
   background: transparent;
   border: 1px solid var(--color-danger);
@@ -537,6 +546,15 @@
   font-size: 0.85rem;
   cursor: default;
   margin-top: auto;
+}
+
+.flows__dynamic-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-bottom: 14px;
 }
 
 @media (max-width: 1000px) {
