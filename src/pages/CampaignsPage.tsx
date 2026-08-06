@@ -10,6 +10,8 @@ import {
 } from '../api/campaigns';
 import { listMembers, type Member } from '../api/members';
 import { ApiError } from '../api/client';
+import { StatusBanner } from '../components/StatusBanner';
+import { useStatusMessage } from '../components/useStatusMessage';
 import './CampaignsPage.css';
 
 const TYPE_OPTIONS = [
@@ -40,14 +42,13 @@ export function CampaignsPage() {
   const { user } = useAuth();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const pageStatus = useStatusMessage();
 
   const [name, setName] = useState('');
   const [type, setType] = useState('1');
   const [messageTemplate, setMessageTemplate] = useState('');
   const [triggerDayOffset, setTriggerDayOffset] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
@@ -62,7 +63,7 @@ export function CampaignsPage() {
     setIsLoading(true);
     listCampaigns(user.gymId)
       .then(setCampaigns)
-      .catch(() => setLoadError('Não foi possível carregar as campanhas.'))
+      .catch(() => pageStatus.showError('Não foi possível carregar as campanhas.'))
       .finally(() => setIsLoading(false));
   }
 
@@ -70,7 +71,7 @@ export function CampaignsPage() {
 
   async function handleCreate(event: FormEvent) {
     event.preventDefault();
-    setSaveError(null);
+    pageStatus.clear();
     setIsSaving(true);
 
     try {
@@ -85,7 +86,7 @@ export function CampaignsPage() {
       setMessageTemplate('');
       setTriggerDayOffset('');
     } catch (err) {
-      setSaveError(err instanceof ApiError ? err.message : 'Não foi possível criar a campanha.');
+      pageStatus.showError(err instanceof ApiError ? err.message : 'Não foi possível criar a campanha.');
     } finally {
       setIsSaving(false);
     }
@@ -141,6 +142,7 @@ export function CampaignsPage() {
 
   return (
     <div className="campaigns">
+
       <header className="campaigns__header">
         <h1>Campanhas</h1>
         <p>
@@ -151,6 +153,11 @@ export function CampaignsPage() {
           um template aprovado na página <strong>Templates</strong> para evitar o aviso de conformidade.
         </p>
       </header>
+
+      {pageStatus.status && (
+        <StatusBanner variant={pageStatus.status.variant} message={pageStatus.status.message} onDismiss={pageStatus.clear} />
+      )}
+
 
       <div className="campaigns__layout">
         <form className="campaigns__form" onSubmit={handleCreate}>
@@ -197,8 +204,6 @@ export function CampaignsPage() {
             />
           </label>
 
-          {saveError && <div className="campaigns__error">{saveError}</div>}
-
           <button type="submit" className="campaigns__submit" disabled={isSaving}>
             {isSaving ? 'A guardar…' : 'Criar campanha'}
           </button>
@@ -206,8 +211,7 @@ export function CampaignsPage() {
 
         <div className="campaigns__list">
           {isLoading && <p className="campaigns__empty">A carregar…</p>}
-          {loadError && <p className="campaigns__error">{loadError}</p>}
-          {!isLoading && !loadError && campaigns.length === 0 && (
+          {!isLoading && campaigns.length === 0 && (
             <p className="campaigns__empty">Ainda não há campanhas. Cria a primeira à esquerda.</p>
           )}
 

@@ -136,3 +136,17 @@
   font-size: 0.82rem !important;
   color: var(--color-text-faint) !important;
 }
+
+.app-shell__nav-section {
+  margin-bottom: 18px;
+}
+
+.app-shell__nav-heading {
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-faint);
+  padding: 0 12px 6px;
+  margin-top: 4px;
+}

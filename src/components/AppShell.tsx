@@ -1,15 +1,15 @@
-import type { ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useAuth } from '../auth/useAuth';
-import './AppShell.css';
+import type { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
+import { useAuth } from "../auth/useAuth";
+import "./AppShell.css";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const isPlatformAdmin = user?.roles.includes('PlatformAdmin') ?? false;
+  const isPlatformAdmin = user?.roles.includes("PlatformAdmin") ?? false;
 
   const navLinkClass = (path: string) =>
-    `shell__nav-item${location.pathname === path ? ' shell__nav-item--active' : ''}`;
+    `shell__nav-item${location.pathname === path ? " shell__nav-item--active" : ""}`;
 
   return (
     <div className="shell">
@@ -22,33 +22,51 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        <nav className="shell__nav">
-          <a className={navLinkClass('/faqs')} href="/faqs">
-            FAQs
-          </a>
-          <a className={navLinkClass('/class-types')} href="/class-types">
-            Aulas
-          </a>
-          <a className={navLinkClass('/campaigns')} href="/campaigns">
-            Campanhas
-          </a>
-          <a className={navLinkClass('/compliance')} href="/compliance">
-            Conformidade
-          </a>
-          <a className={navLinkClass('/templates')} href="/templates">
-            Templates
-          </a>
-          <a className={navLinkClass('/flows')} href="/flows">
-            Flows
-          </a>
-          <a className={navLinkClass('/settings')} href="/settings">
-            Definições
-          </a>
-          {isPlatformAdmin && (
-            <a className={navLinkClass('/gyms')} href="/gyms">
-              Gyms
+        <nav className="app-shell__nav">
+          <div className="app-shell__nav-section">
+            <span className="app-shell__nav-heading">Conteúdo</span>
+            <a className={navLinkClass("/faqs")} href="/faqs">
+              FAQs
             </a>
-          )}
+            <a className={navLinkClass("/class-types")} href="/class-types">
+              Aulas
+            </a>
+          </div>
+
+          <div className="app-shell__nav-section">
+            <span className="app-shell__nav-heading">Mensagens</span>
+            <a className={navLinkClass("/campaigns")} href="/campaigns">
+              Campanhas
+            </a>
+            <a className={navLinkClass("/templates")} href="/templates">
+              Templates
+            </a>
+            <a className={navLinkClass("/flows")} href="/flows">
+              Flows
+            </a>
+          </div>
+
+          <div className="app-shell__nav-section">
+            <span className="app-shell__nav-heading">Monitorização</span>
+            <a className={navLinkClass("/compliance")} href="/compliance">
+              Conformidade
+            </a>
+          </div>
+
+          <div className="app-shell__nav-section">
+            <span className="app-shell__nav-heading">Sistema</span>
+            <a className={navLinkClass("/wiki")} href="/wiki">
+              Wiki
+            </a>
+            <a className={navLinkClass("/settings")} href="/settings">
+              Definições
+            </a>
+            {isPlatformAdmin && (
+              <a className={navLinkClass("/gyms")} href="/gyms">
+                Gyms
+              </a>
+            )}
+          </div>
         </nav>
 
         <div className="shell__user">

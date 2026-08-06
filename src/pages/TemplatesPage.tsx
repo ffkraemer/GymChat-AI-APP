@@ -9,6 +9,8 @@ import {
   type Template,
 } from '../api/templates';
 import { ApiError } from '../api/client';
+import { StatusBanner } from '../components/StatusBanner';
+import { useStatusMessage } from '../components/useStatusMessage';
 import { linkWhatsAppTemplate, listCampaigns, type Campaign } from '../api/campaigns';
 import './TemplatesPage.css';
 
@@ -47,14 +49,13 @@ export function TemplatesPage() {
   const { user } = useAuth();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const pageStatus = useStatusMessage();
 
   const [name, setName] = useState('');
   const [language, setLanguage] = useState('pt_PT');
   const [category, setCategory] = useState('2');
   const [bodyText, setBodyText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -62,14 +63,13 @@ export function TemplatesPage() {
 
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [linkingId, setLinkingId] = useState<string | null>(null);
-  const [linkMessage, setLinkMessage] = useState<string | null>(null);
 
   function load() {
     if (!user) return;
     setIsLoading(true);
     listTemplates(user.gymId)
       .then(setTemplates)
-      .catch(() => setLoadError('Não foi possível carregar os templates.'))
+      .catch(() => pageStatus.showError('Não foi possível carregar os templates.'))
       .finally(() => setIsLoading(false));
 
     listCampaigns(user.gymId)
@@ -82,14 +82,14 @@ export function TemplatesPage() {
   useEffect(load, [user]);
 
   async function handleLinkTemplate(campaignId: string, templateId: string) {
-    setLinkMessage(null);
+    pageStatus.clear();
     setLinkingId(campaignId);
     try {
       const updated = await linkWhatsAppTemplate(campaignId, templateId || null);
       setCampaigns((current) => current.map((c) => (c.id === campaignId ? updated : c)));
-      setLinkMessage(templateId ? 'Campanha ligada ao template.' : 'Campanha desligada do template - volta a usar texto livre.');
+      pageStatus.showSuccess(templateId ? 'Campanha ligada ao template.' : 'Campanha desligada do template — volta a usar texto livre.');
     } catch (err) {
-      setLinkMessage(err instanceof ApiError ? err.message : 'Não foi possível ligar a campanha ao template.');
+      pageStatus.showError(err instanceof ApiError ? err.message : 'Não foi possível ligar a campanha ao template.');
     } finally {
       setLinkingId(null);
     }
@@ -97,7 +97,7 @@ export function TemplatesPage() {
 
   async function handleCreateDraft(event: FormEvent) {
     event.preventDefault();
-    setSaveError(null);
+    pageStatus.clear();
     setIsSaving(true);
 
     try {
@@ -106,7 +106,7 @@ export function TemplatesPage() {
       setName('');
       setBodyText('');
     } catch (err) {
-      setSaveError(err instanceof ApiError ? err.message : 'Não foi possível criar o rascunho.');
+      pageStatus.showError(err instanceof ApiError ? err.message : 'Não foi possível criar o rascunho.');
     } finally {
       setIsSaving(false);
     }
@@ -118,7 +118,7 @@ export function TemplatesPage() {
       const updated = await submitTemplate(templateId);
       setTemplates((current) => current.map((t) => (t.id === templateId ? updated : t)));
     } catch (err) {
-      setSaveError(err instanceof ApiError ? err.message : 'Não foi possível submeter o template.');
+      pageStatus.showInfo(err instanceof ApiError ? `Meta: ${err.message}` : 'Não foi possível submeter o template.');
     } finally {
       setSubmittingId(null);
     }
@@ -130,7 +130,7 @@ export function TemplatesPage() {
       await deleteTemplate(templateId);
       setTemplates((current) => current.filter((t) => t.id !== templateId));
     } catch (err) {
-      setSaveError(err instanceof ApiError ? err.message : 'Não foi possível eliminar o rascunho.');
+      pageStatus.showError(err instanceof ApiError ? err.message : 'Não foi possível eliminar o rascunho.');
     } finally {
       setDeletingId(null);
     }
@@ -151,6 +151,7 @@ export function TemplatesPage() {
 
   return (
     <div className="templates">
+
       <header className="templates__header">
         <h1>Templates</h1>
         <p>
@@ -161,6 +162,11 @@ export function TemplatesPage() {
         </p>
       </header>
 
+      {pageStatus.status && (
+        <StatusBanner variant={pageStatus.status.variant} message={pageStatus.status.message} onDismiss={pageStatus.clear} />
+      )}
+
+
       {campaigns.length > 0 && (
         <section className="templates__campaigns">
           <h2>Ligar campanhas a templates aprovados</h2>
@@ -168,7 +174,6 @@ export function TemplatesPage() {
             Enquanto uma campanha não estiver ligada a um template <strong>Aprovado</strong>, continua a enviar texto
             livre (o aviso no Dashboard de Conformidade reflete isto).
           </p>
-          {linkMessage && <div className="templates__campaigns-message">{linkMessage}</div>}
           <div className="templates__campaigns-list">
             {campaigns.map((campaign) => (
               <div key={campaign.id} className="templates__campaigns-row">
@@ -234,7 +239,6 @@ export function TemplatesPage() {
             />
           </label>
 
-          {saveError && <div className="templates__error">{saveError}</div>}
 
           <button type="submit" className="templates__submit" disabled={isSaving}>
             {isSaving ? 'A guardar…' : 'Criar rascunho'}
@@ -250,8 +254,7 @@ export function TemplatesPage() {
           </div>
 
           {isLoading && <p className="templates__empty">A carregar…</p>}
-          {loadError && <p className="templates__error">{loadError}</p>}
-          {!isLoading && !loadError && templates.length === 0 && (
+          {!isLoading && templates.length === 0 && (
             <p className="templates__empty">Ainda não há templates. Cria o primeiro à esquerda.</p>
           )}
 

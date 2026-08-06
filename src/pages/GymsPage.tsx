@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../auth/useAuth';
 import { createGym, listGyms, registerOperator, type Gym } from '../api/gyms';
 import { ApiError } from '../api/client';
+import { StatusBanner } from '../components/StatusBanner';
+import { useStatusMessage } from '../components/useStatusMessage';
 import './GymsPage.css';
 
 export function GymsPage() {
@@ -10,14 +12,13 @@ export function GymsPage() {
 
   const [gyms, setGyms] = useState<Gym[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const pageStatus = useStatusMessage();
 
   // Create gym form
   const [gymName, setGymName] = useState('');
   const [phoneNumberId, setPhoneNumberId] = useState('');
   const [displayPhoneNumber, setDisplayPhoneNumber] = useState('');
   const [isSavingGym, setIsSavingGym] = useState(false);
-  const [gymError, setGymError] = useState<string | null>(null);
 
   // Register operator form
   const [selectedGymId, setSelectedGymId] = useState('');
@@ -25,8 +26,6 @@ export function GymsPage() {
   const [operatorPassword, setOperatorPassword] = useState('');
   const [operatorName, setOperatorName] = useState('');
   const [isSavingOperator, setIsSavingOperator] = useState(false);
-  const [operatorError, setOperatorError] = useState<string | null>(null);
-  const [operatorSuccess, setOperatorSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isPlatformAdmin) return;
@@ -36,7 +35,7 @@ export function GymsPage() {
         setGyms(result);
         if (result.length > 0) setSelectedGymId((current) => current || result[0].id);
       })
-      .catch(() => setLoadError('Não foi possível carregar os gyms.'))
+      .catch(() => pageStatus.showError('Não foi possível carregar os gyms.'))
       .finally(() => setIsLoading(false));
   }, [isPlatformAdmin]);
 
@@ -51,7 +50,7 @@ export function GymsPage() {
 
   async function handleCreateGym(event: FormEvent) {
     event.preventDefault();
-    setGymError(null);
+    pageStatus.clear();
     setIsSavingGym(true);
 
     try {
@@ -66,7 +65,7 @@ export function GymsPage() {
       setPhoneNumberId('');
       setDisplayPhoneNumber('');
     } catch (err) {
-      setGymError(err instanceof ApiError ? err.message : 'Não foi possível criar o gym.');
+      pageStatus.showError(err instanceof ApiError ? err.message : 'Não foi possível criar o gym.');
     } finally {
       setIsSavingGym(false);
     }
@@ -74,8 +73,7 @@ export function GymsPage() {
 
   async function handleRegisterOperator(event: FormEvent) {
     event.preventDefault();
-    setOperatorError(null);
-    setOperatorSuccess(null);
+    pageStatus.clear();
     setIsSavingOperator(true);
 
     try {
@@ -85,12 +83,12 @@ export function GymsPage() {
         fullName: operatorName,
         gymId: selectedGymId,
       });
-      setOperatorSuccess(`Conta criada: ${result.email}`);
+      pageStatus.showSuccess(`Conta criada: ${result.email}`);
       setOperatorEmail('');
       setOperatorPassword('');
       setOperatorName('');
     } catch (err) {
-      setOperatorError(err instanceof ApiError ? err.message : 'Não foi possível criar a conta.');
+      pageStatus.showError(err instanceof ApiError ? err.message : 'Não foi possível criar a conta.');
     } finally {
       setIsSavingOperator(false);
     }
@@ -98,10 +96,16 @@ export function GymsPage() {
 
   return (
     <div className="gyms">
+
       <header className="gyms__header">
         <h1>Gyms</h1>
         <p>Área de gestão da plataforma: cria novos gyms clientes e o primeiro administrador de cada um.</p>
       </header>
+
+      {pageStatus.status && (
+        <StatusBanner variant={pageStatus.status.variant} message={pageStatus.status.message} onDismiss={pageStatus.clear} />
+      )}
+
 
       <div className="gyms__layout">
         <form className="gyms__form" onSubmit={handleCreateGym}>
@@ -121,8 +125,6 @@ export function GymsPage() {
             <span>Número de WhatsApp (exibição)</span>
             <input value={displayPhoneNumber} onChange={(e) => setDisplayPhoneNumber(e.target.value)} placeholder="Ex: +351 900 000 000" required />
           </label>
-
-          {gymError && <div className="gyms__error">{gymError}</div>}
 
           <button type="submit" className="gyms__submit" disabled={isSavingGym}>
             {isSavingGym ? 'A criar…' : 'Criar gym'}
@@ -158,9 +160,6 @@ export function GymsPage() {
             <input type="password" value={operatorPassword} onChange={(e) => setOperatorPassword(e.target.value)} required minLength={8} />
           </label>
 
-          {operatorError && <div className="gyms__error">{operatorError}</div>}
-          {operatorSuccess && <div className="gyms__success">{operatorSuccess}</div>}
-
           <button type="submit" className="gyms__submit" disabled={isSavingOperator || gyms.length === 0}>
             {isSavingOperator ? 'A criar…' : 'Criar administrador'}
           </button>
@@ -170,8 +169,7 @@ export function GymsPage() {
       <section className="gyms__list">
         <h2>Gyms existentes</h2>
         {isLoading && <p className="gyms__empty">A carregar…</p>}
-        {loadError && <p className="gyms__error">{loadError}</p>}
-        {!isLoading && !loadError && gyms.length === 0 && <p className="gyms__empty">Ainda não há gyms criados.</p>}
+        {!isLoading && gyms.length === 0 && <p className="gyms__empty">Ainda não há gyms criados.</p>}
 
         {gyms.map((gym) => (
           <div key={gym.id} className="gyms__card">

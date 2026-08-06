@@ -6,6 +6,8 @@ import {
   type ComplianceSnapshot,
   type FailuresSnapshot,
 } from '../api/compliance';
+import { StatusBanner } from '../components/StatusBanner';
+import { useStatusMessage } from '../components/useStatusMessage';
 import './CompliancePage.css';
 
 const QUALITY_LABELS: Record<string, string> = {
@@ -39,19 +41,19 @@ export function CompliancePage() {
   const [snapshot, setSnapshot] = useState<ComplianceSnapshot | null>(null);
   const [failures, setFailures] = useState<FailuresSnapshot | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const pageStatus = useStatusMessage();
 
   function load() {
     if (!user) return;
     setIsLoading(true);
-    setLoadError(null);
+    pageStatus.clear();
 
     Promise.all([getComplianceSnapshot(user.gymId), getComplianceFailures(user.gymId)])
       .then(([snapshotResult, failuresResult]) => {
         setSnapshot(snapshotResult);
         setFailures(failuresResult);
       })
-      .catch(() => setLoadError('Não foi possível carregar os dados de conformidade.'))
+      .catch(() => pageStatus.showError('Não foi possível carregar os dados de conformidade.'))
       .finally(() => setIsLoading(false));
   }
 
@@ -59,6 +61,7 @@ export function CompliancePage() {
 
   return (
     <div className="compliance">
+
       <header className="compliance__header">
         <div>
           <h1>Conformidade</h1>
@@ -72,7 +75,11 @@ export function CompliancePage() {
         </button>
       </header>
 
-      {loadError && <p className="compliance__error">{loadError}</p>}
+      {pageStatus.status && (
+        <StatusBanner variant={pageStatus.status.variant} message={pageStatus.status.message} onDismiss={pageStatus.clear} />
+      )}
+
+
       {isLoading && !snapshot && <p className="compliance__empty">A carregar…</p>}
 
       {snapshot && (

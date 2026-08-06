@@ -18,6 +18,8 @@ import {
 } from "../api/flows";
 import { ApiError } from "../api/client";
 import "./FlowsPage.css";
+import { StatusBanner } from "../components/StatusBanner";
+import { useStatusMessage } from "../components/useStatusMessage";
 
 const STATUS_LABELS: Record<string, string> = {
   Draft: "Rascunho",
@@ -82,6 +84,10 @@ function nextKey(): string {
 
 interface EditableComponent extends ComponentDefinitionInput {
   _key: string;
+  // Raw text of the static-options editor, kept verbatim while typing (including blank/half-typed
+  // lines) so newlines survive. Converted to staticOptionsJson only at save time - editing the
+  // JSON directly on every keystroke would strip a just-created empty line and swallow the newline.
+  staticOptionsText?: string;
 }
 interface EditableScreen {
   _key: string;
@@ -117,6 +123,20 @@ function linesToStaticOptionsJson(lines: string): string {
   return JSON.stringify(options);
 }
 
+// Resolves a component's current static options for the live preview - prefers the raw text
+// being typed (so the preview updates as you type), falling back to the saved JSON.
+function currentStaticOptions(component: EditableComponent): { id: string; title: string }[] {
+  const json =
+    component.staticOptionsText !== undefined
+      ? linesToStaticOptionsJson(component.staticOptionsText)
+      : (component.staticOptionsJson ?? "[]");
+  try {
+    return JSON.parse(json);
+  } catch {
+    return [];
+  }
+}
+
 function renderDesignPreview(component: EditableComponent, index: number) {
   switch (component.type) {
     case 1:
@@ -139,7 +159,7 @@ function renderDesignPreview(component: EditableComponent, index: number) {
         </label>
       );
     case 4: {
-      const options = component.optionsSource === 1 ? JSON.parse(component.staticOptionsJson || "[]") : null;
+      const options = component.optionsSource === 1 ? currentStaticOptions(component) : null;
       return (
         <label className="fpreview__field" key={index}>
           <span>{component.label}</span>
@@ -151,9 +171,10 @@ function renderDesignPreview(component: EditableComponent, index: number) {
     }
     case 5:
     case 6: {
+      const live = component.optionsSource === 1 ? currentStaticOptions(component) : [];
       const options: { id: string; title: string }[] =
-        component.optionsSource === 1 && component.staticOptionsJson
-          ? JSON.parse(component.staticOptionsJson)
+        live.length > 0
+          ? live
           : [
               { id: "1", title: "Exemplo A" },
               { id: "2", title: "Exemplo B" },
@@ -190,7 +211,6 @@ export function FlowsPage() {
 
   const [newFlowName, setNewFlowName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDynamic, setIsDynamic] = useState(false);
 
@@ -203,15 +223,16 @@ export function FlowsPage() {
 
   const [endpointUrl, setEndpointUrl] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<{ error: string | null; message: string | null }[]>([]);
 
   const [isPublishing, setIsPublishing] = useState(false);
-  const [publishMessage, setPublishMessage] = useState<string | null>(null);
 
   const [triggerRecipient, setTriggerRecipient] = useState("");
   const [isTriggering, setIsTriggering] = useState(false);
-  const [triggerMessage, setTriggerMessage] = useState<string | null>(null);
+
+  // A single page-level status banner, shown at the very top of the page, shared by every
+  // action (create/save/publish/trigger/delete) - simpler and more consistent than a
+  // separate message next to each button.
+  const pageStatus = useStatusMessage();
 
   const selectedFlow = flows.find((f) => f.id === selectedFlowId) ?? null;
   const selectedScreen = screens.find((s) => s._key === selectedScreenKey) ?? null;
@@ -242,8 +263,6 @@ export function FlowsPage() {
   useEffect(() => {
     if (!selectedFlowId) return;
     setIsLoadingContent(true);
-    setSaveMessage(null);
-    setValidationErrors([]);
 
     Promise.all([getFlowJson(selectedFlowId), getFlowScreens(selectedFlowId)])
       .then(([jsonResult, screensResult]) => {
@@ -277,7 +296,7 @@ export function FlowsPage() {
 
   async function handleCreateFlow(event: FormEvent) {
     event.preventDefault();
-    setCreateError(null);
+    pageStatus.clear();
     setIsCreating(true);
     try {
       const created = await createFlow(newFlowName);
@@ -285,7 +304,7 @@ export function FlowsPage() {
       setSelectedFlowId(created.id);
       setNewFlowName("");
     } catch (err) {
-      setCreateError(err instanceof ApiError ? err.message : "Não foi possível criar o Flow.");
+      pageStatus.showError(err instanceof ApiError ? err.message : "Não foi possível criar o Flow.");
     } finally {
       setIsCreating(false);
     }
@@ -298,7 +317,7 @@ export function FlowsPage() {
       setFlows((current) => current.filter((f) => f.id !== flowId));
       if (selectedFlowId === flowId) setSelectedFlowId(null);
     } catch (err) {
-      setSaveMessage(err instanceof ApiError ? err.message : "Não foi possível eliminar o Flow.");
+      pageStatus.showError(err instanceof ApiError ? err.message : "Não foi possível eliminar o Flow.");
     } finally {
       setDeletingId(null);
     }
@@ -365,25 +384,25 @@ export function FlowsPage() {
     if (!selectedFlowId) return;
 
     if (isDynamic && !endpointUrl) {
-      setSaveMessage("Este Flow está marcado como Dinâmico — define a URL do endpoint antes de gravar.");
+      pageStatus.showWarning("Este Flow está marcado como Dinâmico — define a URL do endpoint antes de gravar.");
       return;
     }
 
-    setSaveMessage(null);
-    setValidationErrors([]);
+    pageStatus.clear();
 
     if (mode === "design") {
       for (const screen of screens) {
         const footer = screen.components.find((c) => c.type === 7);
         if (footer?.footerAction === 1 && !footer.footerNextScreenId) {
-          setSaveMessage(`O ecrã "${screen.title || screen.screenId}" tem o rodapé a "Avançar" sem destino escolhido.`);
+          pageStatus.showWarning(
+            `O ecrã "${screen.title || screen.screenId}" tem o rodapé a "Avançar" sem destino escolhido.`,
+          );
           return;
         }
 
-        // A Meta trunca (e avisa) labels de Dropdown/Seleção múltipla/Escolha única com mais de 20 caracteres.
         for (const component of screen.components) {
           if ((component.type === 4 || component.type === 5 || component.type === 6) && component.label.length > 20) {
-            setSaveMessage(
+            pageStatus.showWarning(
               `O campo "${component.variableName || component.label}" no ecrã "${screen.title || screen.screenId}" tem uma pergunta com ${component.label.length} caracteres - a Meta trunca a partir de 20. Encurta o texto.`,
             );
             return;
@@ -391,7 +410,7 @@ export function FlowsPage() {
         }
       }
       if (!screens.some((s) => s.components.some((c) => c.type === 7 && c.footerAction === 2))) {
-        setSaveMessage('Pelo menos um ecrã tem de terminar o Flow ("Terminar o Flow" no rodapé).');
+        pageStatus.showWarning('Pelo menos um ecrã tem de terminar o Flow ("Terminar o Flow" no rodapé).');
         return;
       }
     }
@@ -415,7 +434,8 @@ export function FlowsPage() {
             variableName: c.variableName || undefined,
             required: c.required,
             optionsSource: c.optionsSource,
-            staticOptionsJson: c.staticOptionsJson,
+            staticOptionsJson:
+              c.staticOptionsText !== undefined ? linesToStaticOptionsJson(c.staticOptionsText) : c.staticOptionsJson,
             footerAction: c.footerAction,
             footerNextScreenId: c.footerNextScreenId,
             footerButtonLabel: c.footerButtonLabel,
@@ -425,15 +445,18 @@ export function FlowsPage() {
       }
 
       if (result.validationErrors?.length > 0) {
-        setValidationErrors(result.validationErrors);
-        setSaveMessage("Guardado, mas a Meta reportou avisos - revê abaixo.");
+        const details = result.validationErrors
+          .map((e) => (e.error ? `${e.error}: ${e.message ?? ""}` : (e.message ?? "")))
+          .filter(Boolean)
+          .join(" · ");
+        pageStatus.showInfo(`Meta: guardado, mas com avisos — ${details}`);
       } else {
-        setSaveMessage("Flow guardado com sucesso!");
+        pageStatus.showSuccess("Flow guardado com sucesso!");
         setSelectedFlowId(null);
         loadFlows();
       }
     } catch (err) {
-      setSaveMessage(err instanceof ApiError ? err.message : "Não foi possível guardar.");
+      pageStatus.showError(err instanceof ApiError ? err.message : "Não foi possível guardar.");
     } finally {
       setIsSaving(false);
     }
@@ -441,14 +464,20 @@ export function FlowsPage() {
 
   async function handlePublish() {
     if (!selectedFlowId) return;
-    setPublishMessage(null);
+    pageStatus.clear();
     setIsPublishing(true);
     try {
       const updated = await publishFlow(selectedFlowId);
       setFlows((current) => current.map((f) => (f.id === selectedFlowId ? updated : f)));
-      setPublishMessage("Flow publicado com sucesso.");
+      pageStatus.showSuccess("Flow publicado com sucesso.");
     } catch (err) {
-      setPublishMessage(err instanceof ApiError ? err.message : "Não foi possível publicar.");
+      // A publish rejection almost always carries Meta's own error text through - show it as
+      // an "info" (blue) banner prefixed with "Meta:", so it's clear the message isn't ours.
+      if (err instanceof ApiError) {
+        pageStatus.showInfo(`Meta: ${err.message}`);
+      } else {
+        pageStatus.showError("Não foi possível publicar.");
+      }
     } finally {
       setIsPublishing(false);
     }
@@ -456,7 +485,7 @@ export function FlowsPage() {
 
   async function handleTrigger() {
     if (!selectedFlowId) return;
-    setTriggerMessage(null);
+    pageStatus.clear();
     setIsTriggering(true);
     try {
       await triggerFlow(selectedFlowId, {
@@ -464,9 +493,9 @@ export function FlowsPage() {
         bodyText: "Configura as tuas preferências de notificações num instante!",
         flowCtaButtonText: "Configurar",
       });
-      setTriggerMessage("Enviado! Confirma no telemóvel do destinatário.");
+      pageStatus.showSuccess("Enviado! Confirma no telemóvel do destinatário.");
     } catch (err) {
-      setTriggerMessage(err instanceof ApiError ? err.message : "Não foi possível enviar.");
+      pageStatus.showError(err instanceof ApiError ? err.message : "Não foi possível enviar.");
     } finally {
       setIsTriggering(false);
     }
@@ -491,6 +520,14 @@ export function FlowsPage() {
         </p>
       </header>
 
+      {pageStatus.status && (
+        <StatusBanner
+          variant={pageStatus.status.variant}
+          message={pageStatus.status.message}
+          onDismiss={pageStatus.clear}
+        />
+      )}
+
       <div className="flows__layout3">
         <div className="flows__list-panel">
           <form onSubmit={handleCreateFlow} className="flows__new-form">
@@ -504,7 +541,6 @@ export function FlowsPage() {
               {isCreating ? "…" : "+ Criar"}
             </button>
           </form>
-          {createError && <div className="flows__error">{createError}</div>}
 
           <div className="flows__list-header">
             <h2>Flows</h2>
@@ -744,10 +780,10 @@ export function FlowsPage() {
                             <label className="flows__component-field">
                               <span>Opções (id,título por linha)</span>
                               <textarea
-                                value={staticOptionsToLines(component.staticOptionsJson)}
+                                value={component.staticOptionsText ?? staticOptionsToLines(component.staticOptionsJson)}
                                 onChange={(e) =>
                                   updateComponent(selectedScreen._key, component._key, {
-                                    staticOptionsJson: linesToStaticOptionsJson(e.target.value),
+                                    staticOptionsText: e.target.value,
                                   })
                                 }
                                 rows={3}
@@ -808,23 +844,12 @@ export function FlowsPage() {
               <button type="button" className="flows__save-all" onClick={handleSaveAll} disabled={isSaving}>
                 {isSaving ? "A guardar…" : "Guardar"}
               </button>
-              {validationErrors.length > 0 && (
-                <div className="flows__validation-errors">
-                  {validationErrors.map((e, i) => (
-                    <div key={i}>
-                      {e.error ? `${e.error}: ` : ""}
-                      {e.message}
-                    </div>
-                  ))}
-                </div>
-              )}
 
               {selectedFlow.status === "Draft" && (
                 <button type="button" className="flows__publish-button" onClick={handlePublish} disabled={isPublishing}>
                   {isPublishing ? "A publicar…" : "Publicar Flow"}
                 </button>
               )}
-              {publishMessage && <div className="flows__message">{publishMessage}</div>}
 
               {selectedFlow.status === "Published" && (
                 <div className="flows__trigger">
@@ -843,10 +868,8 @@ export function FlowsPage() {
                   </button>
                 </div>
               )}
-              {triggerMessage && <div className="flows__message">{triggerMessage}</div>}
             </>
           )}
-          {saveMessage && <div className="flows__message flows__message--top">{saveMessage}</div>}
         </div>
 
         <div className="flows__preview-panel">

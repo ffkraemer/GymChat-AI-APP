@@ -1,0 +1,65 @@
+.status-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.status-banner__icon {
+  flex-shrink: 0;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.status-banner__message {
+  flex: 1;
+}
+
+.status-banner__dismiss {
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
+.status-banner__dismiss:hover {
+  opacity: 1;
+}
+
+/* Sucesso - verde */
+.status-banner--success {
+  background: rgba(79, 206, 138, 0.12);
+  border-color: #2e7d4f;
+  color: #4fce8a;
+}
+
+/* Aviso - amarelo (os nossos próprios avisos, ex: validação antes de gravar) */
+.status-banner--warning {
+  background: rgba(230, 184, 60, 0.12);
+  border-color: #a87f1f;
+  color: #e6b83c;
+}
+
+/* Erro - vermelho */
+.status-banner--error {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger);
+  color: #f5b8c0;
+}
+
+/* Info - azul (mensagens cujo conteúdo vem da Meta, ex: avisos de validação de um Flow/Template) */
+.status-banner--info {
+  background: rgba(80, 156, 230, 0.12);
+  border-color: #2f6bab;
+  color: #7db8ed;
+}

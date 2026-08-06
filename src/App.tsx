@@ -1,16 +1,17 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './auth/AuthContext';
-import { ProtectedRoute } from './auth/ProtectedRoute';
-import { AppShell } from './components/AppShell';
-import { LoginPage } from './pages/LoginPage';
-import { FaqsPage } from './pages/FaqsPage';
-import { GymsPage } from './pages/GymsPage';
-import { ClassTypesPage } from './pages/ClassTypesPage';
-import { CompliancePage } from './pages/CompliancePage';
-import { TemplatesPage } from './pages/TemplatesPage';
-import { FlowsPage } from './pages/FlowsPage';
-import { SettingsPage } from './pages/SettingsPage';
-import { CampaignsPage } from './pages/CampaignsPage';
+import { Navigate, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext";
+import { ProtectedRoute } from "./auth/ProtectedRoute";
+import { AppShell } from "./components/AppShell";
+import { LoginPage } from "./pages/LoginPage";
+import { FaqsPage } from "./pages/FaqsPage";
+import { GymsPage } from "./pages/GymsPage";
+import { ClassTypesPage } from "./pages/ClassTypesPage";
+import { CompliancePage } from "./pages/CompliancePage";
+import { TemplatesPage } from "./pages/TemplatesPage";
+import { FlowsPage } from "./pages/FlowsPage";
+import { SettingsPage } from "./pages/SettingsPage";
+import { CampaignsPage } from "./pages/CampaignsPage";
+import { WikiPage } from "./pages/WikiPage";
 
 export default function App() {
   return (
@@ -68,21 +69,31 @@ export default function App() {
           }
         />
         <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <AppShell>
-                <SettingsPage />
-              </AppShell>
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/campaigns"
           element={
             <ProtectedRoute>
               <AppShell>
                 <CampaignsPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wiki"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <WikiPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <SettingsPage />
               </AppShell>
             </ProtectedRoute>
           }

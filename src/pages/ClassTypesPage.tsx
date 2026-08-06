@@ -10,6 +10,8 @@ import {
 } from '../api/classTypes';
 import { listGyms, type Gym } from '../api/gyms';
 import { ApiError } from '../api/client';
+import { StatusBanner } from '../components/StatusBanner';
+import { useStatusMessage } from '../components/useStatusMessage';
 import './ClassTypesPage.css';
 
 export function ClassTypesPage() {
@@ -21,12 +23,11 @@ export function ClassTypesPage() {
 
   const [classTypes, setClassTypes] = useState<ClassType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const pageStatus = useStatusMessage();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
@@ -39,7 +40,7 @@ export function ClassTypesPage() {
         setGyms(result);
         if (result.length > 0) setSelectedGymId((current) => current || result[0].id);
       })
-      .catch(() => setLoadError('Não foi possível carregar os gyms.'));
+      .catch(() => pageStatus.showError('Não foi possível carregar os gyms.'));
   }, [isPlatformAdmin]);
 
   const activeGymId = isPlatformAdmin ? selectedGymId : user?.gymId;
@@ -53,28 +54,28 @@ export function ClassTypesPage() {
     setIsLoading(true);
     listClassTypes(activeGymId)
       .then(setClassTypes)
-      .catch(() => setLoadError('Não foi possível carregar os tipos de aula.'))
+      .catch(() => pageStatus.showError('Não foi possível carregar os tipos de aula.'))
       .finally(() => setIsLoading(false));
   }, [activeGymId]);
 
   function startEditing(classType: ClassType) {
     setEditingId(classType.id);
     setName(classType.name);
-    setSaveError(null);
+    pageStatus.clear();
   }
 
   function cancelEditing() {
     setEditingId(null);
     setName('');
-    setSaveError(null);
+    pageStatus.clear();
   }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setSaveError(null);
+    pageStatus.clear();
 
     if (!activeGymId) {
-      setSaveError('Escolhe um gym primeiro.');
+      pageStatus.showWarning('Escolhe um gym primeiro.');
       return;
     }
 
@@ -91,7 +92,7 @@ export function ClassTypesPage() {
         setName('');
       }
     } catch (err) {
-      setSaveError(err instanceof ApiError ? err.message : 'Não foi possível guardar.');
+      pageStatus.showError(err instanceof ApiError ? err.message : 'Não foi possível guardar.');
     } finally {
       setIsSaving(false);
     }
@@ -122,6 +123,10 @@ export function ClassTypesPage() {
 
   return (
     <div className="class-types">
+      {pageStatus.status && (
+        <StatusBanner variant={pageStatus.status.variant} message={pageStatus.status.message} onDismiss={pageStatus.clear} />
+      )}
+
       <header className="class-types__header">
         <h1>Aulas</h1>
         <p>
@@ -152,8 +157,6 @@ export function ClassTypesPage() {
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Yoga, Spinning, CrossTraining…" required />
           </label>
 
-          {saveError && <div className="class-types__error">{saveError}</div>}
-
           <div className="class-types__form-actions">
             <button type="submit" className="class-types__submit" disabled={isSaving || !activeGymId}>
               {isSaving ? 'A guardar…' : editingId ? 'Guardar alterações' : 'Adicionar aula'}
@@ -168,8 +171,7 @@ export function ClassTypesPage() {
 
         <div className="class-types__list">
           {isLoading && <p className="class-types__empty">A carregar…</p>}
-          {loadError && <p className="class-types__error">{loadError}</p>}
-          {!isLoading && !loadError && classTypes.length === 0 && (
+          {!isLoading && classTypes.length === 0 && (
             <p className="class-types__empty">Ainda não há aulas configuradas. Cria a primeira à esquerda.</p>
           )}
 

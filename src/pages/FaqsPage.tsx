@@ -3,20 +3,21 @@ import { useAuth } from '../auth/useAuth';
 import { activateFaq, createFaq, deactivateFaq, listFaqs, updateFaq, type Faq } from '../api/faqs';
 import { ChatBubble } from '../components/ChatBubble';
 import { ApiError } from '../api/client';
+import { StatusBanner } from '../components/StatusBanner';
+import { useStatusMessage } from '../components/useStatusMessage';
 import './FaqsPage.css';
 
 export function FaqsPage() {
   const { user } = useAuth();
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const pageStatus = useStatusMessage();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [category, setCategory] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
@@ -25,7 +26,7 @@ export function FaqsPage() {
 
     listFaqs(user.gymId)
       .then(setFaqs)
-      .catch(() => setLoadError('Não foi possível carregar as FAQs.'))
+      .catch(() => pageStatus.showError('Não foi possível carregar as FAQs.'))
       .finally(() => setIsLoading(false));
   }, [user]);
 
@@ -34,7 +35,7 @@ export function FaqsPage() {
     setQuestion(faq.question);
     setAnswer(faq.answer);
     setCategory(faq.category ?? '');
-    setSaveError(null);
+    pageStatus.clear();
   }
 
   function cancelEditing() {
@@ -42,12 +43,12 @@ export function FaqsPage() {
     setQuestion('');
     setAnswer('');
     setCategory('');
-    setSaveError(null);
+    pageStatus.clear();
   }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setSaveError(null);
+    pageStatus.clear();
     setIsSaving(true);
 
     try {
@@ -63,7 +64,7 @@ export function FaqsPage() {
         setCategory('');
       }
     } catch (err) {
-      setSaveError(err instanceof ApiError ? err.message : 'Não foi possível guardar a FAQ.');
+      pageStatus.showError(err instanceof ApiError ? err.message : 'Não foi possível guardar a FAQ.');
     } finally {
       setIsSaving(false);
     }
@@ -83,6 +84,7 @@ export function FaqsPage() {
 
   return (
     <div className="faqs">
+
       <header className="faqs__header">
         <h1>FAQs</h1>
         <p>
@@ -90,6 +92,11 @@ export function FaqsPage() {
           pré-visualização para confirmar antes de guardar.
         </p>
       </header>
+
+      {pageStatus.status && (
+        <StatusBanner variant={pageStatus.status.variant} message={pageStatus.status.message} onDismiss={pageStatus.clear} />
+      )}
+
 
       <div className="faqs__layout">
         <form className="faqs__form" onSubmit={handleSubmit}>
@@ -132,8 +139,6 @@ export function FaqsPage() {
             </div>
           )}
 
-          {saveError && <div className="faqs__error">{saveError}</div>}
-
           <div className="faqs__form-actions">
             <button type="submit" className="faqs__submit" disabled={isSaving}>
               {isSaving ? 'A guardar…' : editingId ? 'Guardar alterações' : 'Guardar FAQ'}
@@ -148,8 +153,7 @@ export function FaqsPage() {
 
         <div className="faqs__list">
           {isLoading && <p className="faqs__empty">A carregar…</p>}
-          {loadError && <p className="faqs__error">{loadError}</p>}
-          {!isLoading && !loadError && faqs.length === 0 && (
+          {!isLoading && faqs.length === 0 && (
             <p className="faqs__empty">Ainda não há FAQs. Cria a primeira à esquerda.</p>
           )}
 
