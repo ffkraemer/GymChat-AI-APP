@@ -31,6 +31,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <a className={navLinkClass("/class-types")} href="/class-types">
               Aulas
             </a>
+            <a className={navLinkClass("/option-lists")} href="/option-lists">
+              Listas de Opções
+            </a>
           </div>
 
           <div className="app-shell__nav-section">

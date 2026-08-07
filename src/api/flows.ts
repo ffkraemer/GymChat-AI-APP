@@ -60,6 +60,7 @@ export interface ComponentResponse {
   required: boolean;
   optionsSource: string | null;
   staticOptionsJson: string | null;
+  optionListId: string | null;
   footerAction: string | null;
   footerNextScreenId: string | null;
   footerButtonLabel: string | null;
@@ -82,6 +83,7 @@ export interface ComponentDefinitionInput {
   required?: boolean;
   optionsSource?: number | null;
   staticOptionsJson?: string | null;
+  optionListId?: string | null;
   footerAction?: number | null;
   footerNextScreenId?: string | null;
   footerButtonLabel?: string | null;

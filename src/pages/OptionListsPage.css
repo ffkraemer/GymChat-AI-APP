@@ -1,0 +1,335 @@
+.option-lists {
+  max-width: 1000px;
+}
+
+.option-lists__header {
+  margin-bottom: 20px;
+  max-width: 720px;
+}
+
+.option-lists__header h1 {
+  font-size: 1.4rem;
+  margin-bottom: 6px;
+}
+
+.option-lists__header p {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.option-lists__layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.option-lists__list-panel,
+.option-lists__editor-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.option-lists__list-panel {
+  position: sticky;
+  top: 32px;
+}
+
+.option-lists__new-button {
+  width: 100%;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.option-lists__new-button:hover {
+  background: var(--color-accent-hover);
+}
+
+.option-lists__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+
+.option-lists__item:hover {
+  background: var(--color-surface-raised);
+}
+
+.option-lists__item--active {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.option-lists__item--inactive .option-lists__item-name {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.option-lists__item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.option-lists__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.option-lists__badge {
+  font-size: 0.62rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.option-lists__badge--global {
+  color: #7db8ed;
+  border-color: #2f6bab;
+}
+
+.option-lists__badge--system {
+  color: #e6b83c;
+  border-color: #a87f1f;
+}
+
+.option-lists__badge--inactive {
+  color: var(--color-text-faint);
+}
+
+.option-lists__editor-header {
+  margin-bottom: 16px;
+}
+
+.option-lists__editor-header h2 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.option-lists__hint {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  border-left: 3px solid var(--color-accent);
+}
+
+.option-lists__field {
+  display: block;
+  margin-bottom: 18px;
+}
+
+.option-lists__field span {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-bottom: 5px;
+}
+
+.option-lists__field input {
+  width: 100%;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--color-text);
+  font-size: 0.88rem;
+}
+
+.option-lists__field input:disabled {
+  opacity: 0.6;
+}
+
+.option-lists__items-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.option-lists__items-header h3 {
+  font-size: 0.9rem;
+}
+
+.option-lists__add-item {
+  background: transparent;
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.option-lists__items {
+  margin-bottom: 18px;
+}
+
+.option-lists__items-labels {
+  display: grid;
+  grid-template-columns: 1fr 1fr 92px;
+  gap: 8px;
+  font-size: 0.7rem;
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0 2px 6px;
+}
+
+.option-lists__item-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 92px;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.option-lists__value-input,
+.option-lists__label-input {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 7px 9px;
+  color: var(--color-text);
+  font-size: 0.82rem;
+}
+
+.option-lists__value-input {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.option-lists__value-input:disabled,
+.option-lists__label-input:disabled {
+  opacity: 0.6;
+}
+
+.option-lists__item-actions {
+  display: flex;
+  gap: 3px;
+}
+
+.option-lists__item-actions button {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  width: 26px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.option-lists__item-actions button:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.option-lists__item-actions button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.option-lists__remove-item:hover:not(:disabled) {
+  border-color: var(--color-danger) !important;
+  color: var(--color-danger) !important;
+}
+
+.option-lists__editor-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.option-lists__save-button {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.option-lists__save-button:hover {
+  background: var(--color-accent-hover);
+}
+
+.option-lists__save-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.option-lists__toggle-button {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.option-lists__toggle-button:hover {
+  border-color: var(--color-accent);
+}
+
+.option-lists__delete-button {
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.option-lists__delete-button:hover {
+  background: var(--color-danger-bg);
+}
+
+.option-lists__empty {
+  color: var(--color-text-faint);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .option-lists__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .option-lists__list-panel {
+    position: static;
+  }
+}

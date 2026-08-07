@@ -16,6 +16,7 @@ import {
   type Flow,
   type ScreenDefinitionInput,
 } from "../api/flows";
+import { listOptionLists, type OptionList } from "../api/optionLists";
 import { ApiError } from "../api/client";
 import "./FlowsPage.css";
 import { StatusBanner } from "../components/StatusBanner";
@@ -49,11 +50,23 @@ const COMPONENT_TYPES = [
   { value: 6, label: "Escolha única" },
   { value: 7, label: "Rodapé" },
 ];
-const OPTIONS_SOURCES = [
-  { value: 1, label: "Opções fixas" },
-  { value: 2, label: "Tipos de aula do gym" },
-  { value: 3, label: "Dias da semana" },
-  { value: 4, label: "Períodos do dia" },
+// Value 5 = CustomList: a reusable OptionList managed in "Listas de Opções". Picking it
+// reveals a second dropdown to choose which list.
+const CUSTOM_LIST_SOURCE = 5;
+// The "Origem das opções" dropdown, grouped by kind via <optgroup> so the three families read
+// clearly: options you type by hand, the built-in presets the system resolves, and your own
+// managed lists. "Lista personalizada" stays a single option that reveals the second dropdown.
+const OPTIONS_SOURCE_GROUPS = [
+  { label: "Opções fixas", options: [{ value: 1, label: "Opções fixas" }] },
+  {
+    label: "Predefinidas",
+    options: [
+      { value: 2, label: "Tipos de aula do gym" },
+      { value: 3, label: "Dias da semana" },
+      { value: 4, label: "Períodos do dia" },
+    ],
+  },
+  { label: "Lista personalizada", options: [{ value: CUSTOM_LIST_SOURCE, label: "Lista personalizada" }] },
 ];
 const FOOTER_ACTIONS = [
   { value: 1, label: "Avançar para outro ecrã" },
@@ -73,6 +86,7 @@ const OPTIONS_SOURCE_NAME_TO_VALUE: Record<string, number> = {
   GymClassTypes: 2,
   DaysOfWeek: 3,
   TimeWindows: 4,
+  CustomList: 5,
 };
 const FOOTER_ACTION_NAME_TO_VALUE: Record<string, number> = { Navigate: 1, Complete: 2 };
 
@@ -137,7 +151,17 @@ function currentStaticOptions(component: EditableComponent): { id: string; title
   }
 }
 
-function renderDesignPreview(component: EditableComponent, index: number) {
+function renderDesignPreview(
+  component: EditableComponent,
+  index: number,
+  optionLists: OptionList[],
+) {
+  // For a custom-list source, show that list's items in the preview (both static and dynamic flows).
+  const customItems =
+    component.optionsSource === CUSTOM_LIST_SOURCE && component.optionListId
+      ? (optionLists.find((l) => l.id === component.optionListId)?.items.map((i) => ({ id: i.value, title: i.label })) ?? [])
+      : null;
+
   switch (component.type) {
     case 1:
       return (
@@ -159,7 +183,12 @@ function renderDesignPreview(component: EditableComponent, index: number) {
         </label>
       );
     case 4: {
-      const options = component.optionsSource === 1 ? currentStaticOptions(component) : null;
+      const options =
+        component.optionsSource === 1
+          ? currentStaticOptions(component)
+          : component.optionsSource === CUSTOM_LIST_SOURCE
+            ? customItems
+            : null;
       return (
         <label className="fpreview__field" key={index}>
           <span>{component.label}</span>
@@ -171,7 +200,12 @@ function renderDesignPreview(component: EditableComponent, index: number) {
     }
     case 5:
     case 6: {
-      const live = component.optionsSource === 1 ? currentStaticOptions(component) : [];
+      const live =
+        component.optionsSource === 1
+          ? currentStaticOptions(component)
+          : component.optionsSource === CUSTOM_LIST_SOURCE
+            ? (customItems ?? [])
+            : [];
       const options: { id: string; title: string }[] =
         live.length > 0
           ? live
@@ -221,6 +255,10 @@ export function FlowsPage() {
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Option lists visible to this gym (own + globals), used to populate the "Lista personalizada"
+  // picker and to render custom-list options in the live preview.
+  const [optionLists, setOptionLists] = useState<OptionList[]>([]);
+
   const [endpointUrl, setEndpointUrl] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -253,6 +291,16 @@ export function FlowsPage() {
 
   useEffect(loadFlows, [user]);
 
+  // Load the option lists available to this gym once (for the custom-list picker + preview).
+  useEffect(() => {
+    if (!user) return;
+    listOptionLists(user.gymId, false)
+      .then(setOptionLists)
+      .catch(() => {
+        // Non-fatal - the custom-list picker just stays empty.
+      });
+  }, [user]);
+
   useEffect(() => {
     if (selectedFlow) {
       setIsDynamic(selectedFlow.isDynamic);
@@ -280,6 +328,7 @@ export function FlowsPage() {
             required: c.required,
             optionsSource: c.optionsSource ? OPTIONS_SOURCE_NAME_TO_VALUE[c.optionsSource] : undefined,
             staticOptionsJson: c.staticOptionsJson ?? undefined,
+            optionListId: c.optionListId ?? undefined,
             footerAction: c.footerAction ? FOOTER_ACTION_NAME_TO_VALUE[c.footerAction] : undefined,
             footerNextScreenId: c.footerNextScreenId ?? undefined,
             footerButtonLabel: c.footerButtonLabel ?? undefined,
@@ -407,6 +456,18 @@ export function FlowsPage() {
             );
             return;
           }
+
+          // A custom-list source needs a list actually chosen.
+          if (
+            (component.type === 4 || component.type === 5 || component.type === 6) &&
+            component.optionsSource === CUSTOM_LIST_SOURCE &&
+            !component.optionListId
+          ) {
+            pageStatus.showWarning(
+              `O campo "${component.variableName || component.label}" no ecrã "${screen.title || screen.screenId}" tem origem "Lista personalizada" mas nenhuma lista escolhida.`,
+            );
+            return;
+          }
         }
       }
       if (!screens.some((s) => s.components.some((c) => c.type === 7 && c.footerAction === 2))) {
@@ -436,6 +497,7 @@ export function FlowsPage() {
             optionsSource: c.optionsSource,
             staticOptionsJson:
               c.staticOptionsText !== undefined ? linesToStaticOptionsJson(c.staticOptionsText) : c.staticOptionsJson,
+            optionListId: c.optionsSource === CUSTOM_LIST_SOURCE ? c.optionListId : undefined,
             footerAction: c.footerAction,
             footerNextScreenId: c.footerNextScreenId,
             footerButtonLabel: c.footerButtonLabel,
@@ -767,9 +829,35 @@ export function FlowsPage() {
                                   })
                                 }
                               >
-                                {OPTIONS_SOURCES.map((o) => (
-                                  <option key={o.value} value={o.value}>
-                                    {o.label}
+                                {OPTIONS_SOURCE_GROUPS.map((group) => (
+                                  <optgroup key={group.label} label={group.label}>
+                                    {group.options.map((o) => (
+                                      <option key={o.value} value={o.value}>
+                                        {o.label}
+                                      </option>
+                                    ))}
+                                  </optgroup>
+                                ))}
+                              </select>
+                            </label>
+                          )}
+
+                          {isOptionsComponent(component.type) && component.optionsSource === CUSTOM_LIST_SOURCE && (
+                            <label className="flows__component-field">
+                              <span>Qual lista</span>
+                              <select
+                                value={component.optionListId ?? ""}
+                                onChange={(e) =>
+                                  updateComponent(selectedScreen._key, component._key, {
+                                    optionListId: e.target.value || undefined,
+                                  })
+                                }
+                              >
+                                <option value="">Escolhe uma lista…</option>
+                                {optionLists.map((l) => (
+                                  <option key={l.id} value={l.id}>
+                                    {l.name}
+                                    {l.isGlobal ? " (global)" : ""}
                                   </option>
                                 ))}
                               </select>
@@ -912,7 +1000,7 @@ export function FlowsPage() {
               )}
 
             {mode === "design" && !selectedScreen && <p className="flows__empty">Sem ecrã selecionado.</p>}
-            {mode === "design" && selectedScreen?.components.map((c, i) => renderDesignPreview(c, i))}
+            {mode === "design" && selectedScreen?.components.map((c, i) => renderDesignPreview(c, i, optionLists))}
           </div>
         </div>
       </div>

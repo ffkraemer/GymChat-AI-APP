@@ -12,6 +12,7 @@ import { FlowsPage } from "./pages/FlowsPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { CampaignsPage } from "./pages/CampaignsPage";
 import { WikiPage } from "./pages/WikiPage";
+import { OptionListsPage } from "./pages/OptionListsPage";
 
 export default function App() {
   return (
@@ -34,6 +35,16 @@ export default function App() {
             <ProtectedRoute>
               <AppShell>
                 <ClassTypesPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/option-lists"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <OptionListsPage />
               </AppShell>
             </ProtectedRoute>
           }
